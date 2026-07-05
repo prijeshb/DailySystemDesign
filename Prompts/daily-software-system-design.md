@@ -2,20 +2,20 @@
 
 ## Goal
 
-Create one new daily software system design deep dive. Use minimal tokens. No fluff. Check existing files before choosing today's system to avoid duplicates.
+Create one new daily software system design deep dive. Use minimal tokens. No fluff. Check existing topics before choosing today's system to avoid duplicates.
 
-## Outputs
+## Deliverables
 
-Required files:
+Create:
 
-- `<System>_System_Design_<YYYY_MM_DD>.md`
-- `<System>_Failure_Analysis_<YYYY_MM_DD>.md`
-- `<System>_Interview_QA_<YYYY_MM_DD>.md`
-- Update `Concepts_Index.md` when new/changed concepts appear.
+- System Design
+- Failure Analysis
+- Interview Q&A
+- Concept updates when new or changed concepts appear
 
 ## Pick Today's System
 
-1. Inspect existing system design files first.
+1. Inspect existing topics first.
 2. Avoid duplicate systems already present.
 3. Pick one practical system, such as:
    - news aggregator with feed
@@ -40,7 +40,7 @@ Use web search. Prefer high-signal sources:
 - official cloud docs/pricing pages
 - academic/industry PDFs
 - real-world examples
-- existing notes, especially `Concepts_Index.md`
+- existing notes
 - reference prior chat idea: Design Parking Lot System
 
 ## First Principles Thought Process
@@ -53,7 +53,7 @@ For every major component, ask:
 - What simpler alternative exists?
 - What does it cost in latency, money, complexity, freshness, operations?
 
-## System Design File Flow
+## System Design Flow
 
 Use this order:
 
@@ -92,7 +92,7 @@ Add one budget-constrained example:
 - chosen architecture
 - what is sacrificed
 - where it fails first
-- upgrade path
+- upgrade plan
 
 ## Component Tradeoffs
 
@@ -106,7 +106,7 @@ Examples:
 - CDN: lower latency and bandwidth cost; cache purge/freshness issues.
 - Idempotency keys: safer retries; extra storage and key lifecycle complexity.
 
-## Failure-First Analysis File
+## Failure-First Analysis
 
 Start from failures, not happy path.
 
@@ -130,7 +130,7 @@ Cover:
 
 Include in-depth but concise solutions.
 
-## Interview QA File
+## Interview Q&A
 
 Create interview-style Q&A:
 
@@ -145,9 +145,7 @@ Create interview-style Q&A:
 
 Focus on how interviewers ask and probe.
 
-## Concepts_Index Update
-
-Read `Concepts_Index.md` before writing.
+## Concept Updates
 
 For each concept used:
 
@@ -184,4 +182,4 @@ Concept examples:
 - Use bullets over prose.
 - Include concrete numbers where possible.
 - Mention tradeoffs for every chosen component.
-- Keep every output file interview-useful.
+- Keep every deliverable interview-useful.

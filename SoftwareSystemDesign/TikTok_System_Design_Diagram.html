@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TikTok System Design</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #0f172a; display: flex; flex-direction: column; align-items: center; padding: 24px; font-family: system-ui, sans-serif; }
+  h1 { color: #f1f5f9; font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+  p  { color: #64748b; font-size: 13px; margin-bottom: 20px; }
+  svg { max-width: 100%; height: auto; border-radius: 12px; }
+</style>
+</head>
+<body>
+<h1>TikTok Short Video Platform — System Design</h1>
+<p>No external dependencies · Works offline · Upload Pipeline + FYP Read Pipeline</p>
+
+<svg viewBox="0 0 1120 980" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,-apple-system,sans-serif">
+
+  <!-- ── Background ── -->
+  <rect width="1120" height="980" fill="#0f172a" rx="12"/>
+
+  <!-- ── Arrow marker defs ── -->
+  <defs>
+    <marker id="arr"      markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#94a3b8"/></marker>
+    <marker id="arr-blue" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#3b82f6"/></marker>
+    <marker id="arr-grn"  markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#10b981"/></marker>
+    <marker id="arr-amb"  markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#f59e0b"/></marker>
+    <marker id="arr-cyn"  markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#06b6d4"/></marker>
+    <marker id="arr-pur"  markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#7c3aed"/></marker>
+    <marker id="arr-ind"  markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#6366f1"/></marker>
+  </defs>
+
+  <!-- ══════════════════════════════════════════════════════
+       SECTION 1 — UPLOAD PIPELINE
+  ══════════════════════════════════════════════════════ -->
+
+  <!-- Section background -->
+  <rect x="10" y="38" width="1100" height="510" rx="10" fill="#1e293b" opacity="0.5"/>
+  <text x="26" y="62" font-size="12" font-weight="700" fill="#3b82f6">① UPLOAD PIPELINE</text>
+  <text x="192" y="62" font-size="11" fill="#475569">5 – 90s end-to-end</text>
+
+  <!-- ─── ROW 1: Client → API GW → Upload Svc → Kafka ─── -->
+
+  <!-- Client -->
+  <rect x="22" y="80" width="120" height="62" rx="8" fill="#1e293b" stroke="#475569" stroke-width="1.5"/>
+  <text x="82" y="105" text-anchor="middle" font-size="18">📱</text>
+  <text x="82" y="122" text-anchor="middle" font-size="11" font-weight="600" fill="#f1f5f9">Client</text>
+  <text x="82" y="135" text-anchor="middle" font-size="9" fill="#94a3b8">Mobile App</text>
+
+  <!-- Arrow: Client → API GW -->
+  <line x1="143" y1="111" x2="192" y2="111" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="167" y="107" text-anchor="middle" font-size="8" fill="#64748b">5–30s</text>
+
+  <!-- API Gateway -->
+  <rect x="193" y="80" width="140" height="62" rx="8" fill="#78350f" stroke="#d97706" stroke-width="1.5"/>
+  <text x="263" y="105" text-anchor="middle" font-size="16">🔀</text>
+  <text x="263" y="122" text-anchor="middle" font-size="11" font-weight="600" fill="#fef3c7">API Gateway</text>
+  <text x="263" y="135" text-anchor="middle" font-size="9" fill="#fbbf24">Auth · Rate Limit</text>
+
+  <!-- Arrow: API GW → Upload Svc -->
+  <line x1="334" y1="111" x2="383" y2="111" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- Upload Service -->
+  <rect x="384" y="80" width="158" height="62" rx="8" fill="#1e3a5f" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="463" y="105" text-anchor="middle" font-size="16">⬆️</text>
+  <text x="463" y="121" text-anchor="middle" font-size="11" font-weight="600" fill="#bfdbfe">Upload Service</text>
+  <text x="463" y="134" text-anchor="middle" font-size="9" fill="#93c5fd">validate + chunk assembly</text>
+
+  <!-- Arrow: Upload Svc → Kafka -->
+  <line x1="542" y1="111" x2="591" y2="111" stroke="#f59e0b" stroke-width="1.5" marker-end="url(#arr-amb)"/>
+  <text x="566" y="107" text-anchor="middle" font-size="8" fill="#f59e0b">&lt;1s</text>
+
+  <!-- Kafka (queue shape = parallelogram via polygon) -->
+  <polygon points="592,80 762,80 748,142 578,142" fill="#451a03" stroke="#f59e0b" stroke-width="1.5"/>
+  <text x="670" y="105" text-anchor="middle" font-size="16">⚡</text>
+  <text x="670" y="121" text-anchor="middle" font-size="11" font-weight="600" fill="#fcd34d">Kafka</text>
+  <text x="670" y="134" text-anchor="middle" font-size="9" fill="#fbbf24">video.uploaded topic</text>
+
+  <!-- ─── ARROWS DOWN from Row 1 ─── -->
+
+  <!-- Upload Svc → S3 Raw (down) -->
+  <line x1="463" y1="142" x2="463" y2="228" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="471" y="188" font-size="8" fill="#64748b">store raw</text>
+  <text x="471" y="198" font-size="8" fill="#64748b">~instant</text>
+
+  <!-- Kafka → Transcoding (down) -->
+  <line x1="668" y1="142" x2="668" y2="228" stroke="#f59e0b" stroke-width="1.5" marker-end="url(#arr-amb)"/>
+  <text x="676" y="188" font-size="8" fill="#f59e0b">consume</text>
+  <text x="676" y="198" font-size="8" fill="#f59e0b">10–30s</text>
+
+  <!-- ─── ROW 2: S3 Raw, Transcoding, Cassandra ─── -->
+
+  <!-- S3 Raw (cylinder) -->
+  <rect x="384" y="228" width="158" height="65" rx="0" fill="#052e16" stroke="#16a34a" stroke-width="1.5"/>
+  <ellipse cx="463" cy="228" rx="79" ry="12" fill="#063a1a" stroke="#16a34a" stroke-width="1.5"/>
+  <ellipse cx="463" cy="293" rx="79" ry="12" fill="#052e16" stroke="#16a34a" stroke-width="1.5"/>
+  <text x="463" y="255" text-anchor="middle" font-size="16">🪣</text>
+  <text x="463" y="272" text-anchor="middle" font-size="11" font-weight="600" fill="#86efac">S3 — Raw</text>
+  <text x="463" y="284" text-anchor="middle" font-size="9" fill="#4ade80">raw video files</text>
+
+  <!-- Arrow: S3 Raw → Transcoding (dashed, reads) -->
+  <line x1="543" y1="263" x2="600" y2="263" stroke="#475569" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arr)"/>
+  <text x="571" y="258" text-anchor="middle" font-size="8" fill="#475569">reads raw</text>
+
+  <!-- Transcoding -->
+  <rect x="601" y="228" width="192" height="88" rx="8" fill="#2e1065" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="697" y="254" text-anchor="middle" font-size="16">⚙️</text>
+  <text x="697" y="272" text-anchor="middle" font-size="11" font-weight="600" fill="#ddd6fe">Transcoding Service</text>
+  <text x="697" y="285" text-anchor="middle" font-size="9" fill="#a78bfa">GPU Workers (parallel)</text>
+  <text x="697" y="298" text-anchor="middle" font-size="9" fill="#a78bfa">1080p · 720p · 480p · 360p</text>
+  <text x="697" y="309" text-anchor="middle" font-size="9" fill="#a78bfa">+ thumbnail extraction</text>
+
+  <!-- Arrow: Transcoding → Cassandra -->
+  <line x1="793" y1="272" x2="850" y2="264" stroke="#6366f1" stroke-width="1.5" marker-end="url(#arr-ind)"/>
+  <text x="820" y="262" text-anchor="middle" font-size="8" fill="#6366f1">PUBLISHED</text>
+
+  <!-- Cassandra (cylinder) -->
+  <rect x="851" y="228" width="155" height="65" rx="0" fill="#1e1b4b" stroke="#6366f1" stroke-width="1.5"/>
+  <ellipse cx="928" cy="228" rx="77.5" ry="11" fill="#251e5e" stroke="#6366f1" stroke-width="1.5"/>
+  <ellipse cx="928" cy="293" rx="77.5" ry="11" fill="#1e1b4b" stroke="#6366f1" stroke-width="1.5"/>
+  <text x="928" y="254" text-anchor="middle" font-size="16">🗄️</text>
+  <text x="928" y="270" text-anchor="middle" font-size="11" font-weight="600" fill="#c7d2fe">Cassandra</text>
+  <text x="928" y="283" text-anchor="middle" font-size="9" fill="#a5b4fc">Video Metadata DB</text>
+
+  <!-- ─── ARROWS DOWN from Row 2 ─── -->
+
+  <!-- Transcoding → S3 Processed (down) -->
+  <line x1="697" y1="316" x2="697" y2="384" stroke="#16a34a" stroke-width="1.5" marker-end="url(#arr-grn)"/>
+  <text x="706" y="353" font-size="8" fill="#16a34a">upload</text>
+  <text x="706" y="363" font-size="8" fill="#16a34a">variants</text>
+
+  <!-- Cassandra → Re-ranker cross section (dashed, drawn later) -->
+
+  <!-- ─── ROW 3: S3 Processed, CDN ─── -->
+
+  <!-- S3 Processed (cylinder) -->
+  <rect x="601" y="384" width="192" height="65" rx="0" fill="#052e16" stroke="#16a34a" stroke-width="1.5"/>
+  <ellipse cx="697" cy="384" rx="96" ry="12" fill="#063a1a" stroke="#16a34a" stroke-width="1.5"/>
+  <ellipse cx="697" cy="449" rx="96" ry="12" fill="#052e16" stroke="#16a34a" stroke-width="1.5"/>
+  <text x="697" y="410" text-anchor="middle" font-size="16">🪣</text>
+  <text x="697" y="427" text-anchor="middle" font-size="11" font-weight="600" fill="#86efac">S3 — Processed</text>
+  <text x="697" y="440" text-anchor="middle" font-size="9" fill="#4ade80">CDN origin storage</text>
+
+  <!-- Arrow: S3 Proc → CDN -->
+  <line x1="793" y1="416" x2="846" y2="416" stroke="#06b6d4" stroke-width="1.5" marker-end="url(#arr-cyn)"/>
+  <text x="819" y="411" text-anchor="middle" font-size="8" fill="#06b6d4">push/pull</text>
+
+  <!-- CDN (ellipse) -->
+  <ellipse cx="940" cy="416" rx="120" ry="55" fill="#0c4a6e" stroke="#0284c7" stroke-width="2"/>
+  <text x="940" y="400" text-anchor="middle" font-size="16">🌐</text>
+  <text x="940" y="417" text-anchor="middle" font-size="12" font-weight="700" fill="#bae6fd">CDN</text>
+  <text x="940" y="431" text-anchor="middle" font-size="9" fill="#7dd3fc">ByteDance / CloudFront</text>
+  <text x="940" y="442" text-anchor="middle" font-size="9" fill="#7dd3fc">200+ edge PoPs · ~5ms</text>
+
+  <!-- CDN → Client (return, curved dashed) -->
+  <path d="M820,440 Q60,490 82,142" fill="none" stroke="#06b6d4" stroke-width="1.5" stroke-dasharray="6,3" marker-end="url(#arr-cyn)"/>
+  <text x="100" y="430" font-size="8" fill="#06b6d4">serves video</text>
+
+  <!-- ── Timing badges ── -->
+  <rect x="398" y="160" width="50" height="16" rx="4" fill="#0f172a" stroke="#475569"/>
+  <text x="423" y="172" text-anchor="middle" font-size="8" fill="#94a3b8">~instant</text>
+  <rect x="635" y="160" width="36" height="16" rx="4" fill="#0f172a" stroke="#f59e0b"/>
+  <text x="653" y="172" text-anchor="middle" font-size="8" fill="#f59e0b">&lt;1s</text>
+  <rect x="720" y="330" width="70" height="16" rx="4" fill="#0f172a" stroke="#7c3aed"/>
+  <text x="755" y="342" text-anchor="middle" font-size="8" fill="#a78bfa">10–30s GPU</text>
+  <rect x="840" y="400" width="102" height="16" rx="4" fill="#0f172a" stroke="#16a34a"/>
+  <text x="891" y="412" text-anchor="middle" font-size="8" fill="#4ade80">~5s after transcode</text>
+
+
+  <!-- ══════════════════════════════════════════════════════
+       SECTION DIVIDER
+  ══════════════════════════════════════════════════════ -->
+  <line x1="10" y1="560" x2="1110" y2="560" stroke="#334155" stroke-width="2" stroke-dasharray="8,4"/>
+
+  <!-- ══════════════════════════════════════════════════════
+       SECTION 2 — FYP READ PIPELINE
+  ══════════════════════════════════════════════════════ -->
+
+  <rect x="10" y="565" width="1100" height="400" rx="10" fill="#1e293b" opacity="0.5"/>
+  <text x="26" y="588" font-size="12" font-weight="700" fill="#10b981">② FYP READ PIPELINE</text>
+  <text x="200" y="588" font-size="11" fill="#475569">under 200ms feed load</text>
+
+  <!-- ─── ROW 4: Client2 → Feed API → Redis → Re-ranker ─── -->
+
+  <!-- Client 2 -->
+  <rect x="22" y="600" width="120" height="62" rx="8" fill="#1e293b" stroke="#475569" stroke-width="1.5"/>
+  <text x="82" y="625" text-anchor="middle" font-size="18">📱</text>
+  <text x="82" y="642" text-anchor="middle" font-size="11" font-weight="600" fill="#f1f5f9">Client</text>
+  <text x="82" y="655" text-anchor="middle" font-size="9" fill="#94a3b8">opens app</text>
+
+  <!-- Arrow: Client2 → Feed API -->
+  <line x1="143" y1="631" x2="192" y2="631" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="167" y="627" text-anchor="middle" font-size="8" fill="#64748b">GET /fyp</text>
+
+  <!-- Feed API -->
+  <rect x="193" y="600" width="148" height="62" rx="8" fill="#1e3a5f" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="267" y="625" text-anchor="middle" font-size="16">📋</text>
+  <text x="267" y="641" text-anchor="middle" font-size="11" font-weight="600" fill="#bfdbfe">Feed API</text>
+  <text x="267" y="654" text-anchor="middle" font-size="9" fill="#93c5fd">assembles FYP response</text>
+
+  <!-- Arrow: Feed API → Redis -->
+  <line x1="342" y1="631" x2="391" y2="635" stroke="#dc2626" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="366" y="626" text-anchor="middle" font-size="8" fill="#dc2626">5ms</text>
+
+  <!-- Redis FYP Cache (cylinder) -->
+  <rect x="392" y="608" width="172" height="72" rx="0" fill="#450a0a" stroke="#dc2626" stroke-width="1.5"/>
+  <ellipse cx="478" cy="608" rx="86" ry="12" fill="#5a0d0d" stroke="#dc2626" stroke-width="1.5"/>
+  <ellipse cx="478" cy="680" rx="86" ry="12" fill="#450a0a" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="478" y="632" text-anchor="middle" font-size="14">⚡</text>
+  <text x="478" y="648" text-anchor="middle" font-size="11" font-weight="600" fill="#fca5a5">Redis — FYP Cache</text>
+  <text x="478" y="660" text-anchor="middle" font-size="9" fill="#f87171">FYP:{user_id} · 1000 candidates</text>
+  <text x="478" y="671" text-anchor="middle" font-size="9" fill="#f87171">TTL 1800s</text>
+
+  <!-- Arrow: Redis → Re-ranker -->
+  <line x1="565" y1="644" x2="614" y2="648" stroke="#7c3aed" stroke-width="1.5" marker-end="url(#arr-pur)"/>
+  <text x="589" y="640" text-anchor="middle" font-size="8" fill="#7c3aed">top 1000</text>
+
+  <!-- Re-ranker -->
+  <rect x="615" y="600" width="220" height="98" rx="8" fill="#2e1065" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="725" y="622" text-anchor="middle" font-size="14">🎯</text>
+  <text x="725" y="639" text-anchor="middle" font-size="11" font-weight="600" fill="#ddd6fe">Re-ranker</text>
+  <text x="725" y="654" text-anchor="middle" font-size="9" fill="#c4b5fd">score = p(complete)×3.0</text>
+  <text x="725" y="666" text-anchor="middle" font-size="9" fill="#c4b5fd">+ p(share)×2.5 + p(like)×1.5</text>
+  <text x="725" y="678" text-anchor="middle" font-size="9" fill="#c4b5fd">− p(skip)×2.0</text>
+  <text x="725" y="690" text-anchor="middle" font-size="9" fill="#c4b5fd">+ context: device · time of day</text>
+
+  <!-- Arrow: Re-ranker → Feed API (return) -->
+  <path d="M615,618 Q490,590 342,614" fill="none" stroke="#7c3aed" stroke-width="1.5" marker-end="url(#arr-pur)"/>
+  <text x="480" y="591" text-anchor="middle" font-size="8" fill="#7c3aed">top 20 ranked</text>
+
+  <!-- Feed API → Client2 (return CDN URLs) -->
+  <line x1="193" y1="644" x2="143" y2="644" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#arr-blue)"/>
+  <text x="167" y="658" text-anchor="middle" font-size="8" fill="#3b82f6">CDN URLs</text>
+
+  <!-- ─── ROW 5: Two-Tower ─── -->
+
+  <!-- Two-Tower + FAISS -->
+  <rect x="370" y="760" width="210" height="85" rx="8" fill="#3b1f00" stroke="#f59e0b" stroke-width="1.5"/>
+  <text x="475" y="783" text-anchor="middle" font-size="14">🧠</text>
+  <text x="475" y="799" text-anchor="middle" font-size="11" font-weight="600" fill="#fcd34d">Two-Tower + FAISS</text>
+  <text x="475" y="813" text-anchor="middle" font-size="9" fill="#fbbf24">user emb × video emb → top-500</text>
+  <text x="475" y="826" text-anchor="middle" font-size="9" fill="#fbbf24">retrained daily · offline batch</text>
+  <text x="475" y="838" text-anchor="middle" font-size="9" fill="#fbbf24">index refreshed every 30min</text>
+
+  <!-- Arrow: Two-Tower → Redis (up, populates) -->
+  <line x1="478" y1="760" x2="478" y2="692" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arr-amb)"/>
+  <text x="488" y="730" font-size="8" fill="#f59e0b">populates</text>
+  <text x="488" y="740" font-size="8" fill="#f59e0b">offline</text>
+
+  <!-- ─── CROSS-SECTION ARROWS ─── -->
+
+  <!-- Cassandra → Re-ranker (video metadata, dashed) -->
+  <path d="M928,304 Q928,580 725,600" fill="none" stroke="#6366f1" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arr-ind)"/>
+  <text x="960" y="460" font-size="8" fill="#6366f1">video metadata</text>
+  <text x="960" y="470" font-size="8" fill="#6366f1">for scoring</text>
+
+  <!-- CDN → Client2 (video segments, dashed) -->
+  <path d="M840,460 Q20,510 82,600" fill="none" stroke="#06b6d4" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arr-cyn)"/>
+  <text x="30" y="545" font-size="8" fill="#06b6d4">video segments</text>
+
+  <!-- Client2 → Kafka (watch events going back up) -->
+  <path d="M142,617 Q560,570 590,142" fill="none" stroke="#10b981" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arr-grn)"/>
+  <text x="410" y="566" font-size="8" fill="#10b981">watch events · completion rate signals</text>
+
+  <!-- Kafka → Two-Tower (ML training signals) -->
+  <path d="M608,142 Q610,700 580,760" fill="none" stroke="#10b981" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arr-grn)"/>
+  <text x="625" y="750" font-size="8" fill="#10b981">ML training</text>
+  <text x="625" y="760" font-size="8" fill="#10b981">signals (Flink)</text>
+
+  <!-- ── Legend ── -->
+  <rect x="840" y="760" width="265" height="165" rx="8" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+  <text x="972" y="780" text-anchor="middle" font-size="11" font-weight="700" fill="#94a3b8">LEGEND</text>
+
+  <rect x="855" y="793" width="14" height="10" rx="2" fill="#1e3a5f" stroke="#3b82f6"/>
+  <text x="875" y="802" font-size="9" fill="#bfdbfe">Service</text>
+  <rect x="855" y="810" width="14" height="10" rx="2" fill="#78350f" stroke="#d97706"/>
+  <text x="875" y="819" font-size="9" fill="#fef3c7">API Gateway</text>
+  <rect x="855" y="827" width="14" height="10" rx="2" fill="#052e16" stroke="#16a34a"/>
+  <text x="875" y="836" font-size="9" fill="#86efac">Object Storage</text>
+  <rect x="855" y="844" width="14" height="10" rx="2" fill="#451a03" stroke="#f59e0b"/>
+  <text x="875" y="853" font-size="9" fill="#fcd34d">Queue (Kafka)</text>
+  <rect x="855" y="861" width="14" height="10" rx="2" fill="#2e1065" stroke="#7c3aed"/>
+  <text x="875" y="870" font-size="9" fill="#ddd6fe">Processing / ML</text>
+  <rect x="855" y="878" width="14" height="10" rx="2" fill="#1e1b4b" stroke="#6366f1"/>
+  <text x="875" y="887" font-size="9" fill="#c7d2fe">Metadata DB</text>
+  <rect x="855" y="895" width="14" height="10" rx="2" fill="#450a0a" stroke="#dc2626"/>
+  <text x="875" y="904" font-size="9" fill="#fca5a5">Cache (Redis)</text>
+
+  <line x1="975" y1="797" x2="1000" y2="797" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="1005" y="801" font-size="9" fill="#94a3b8">Main flow</text>
+  <line x1="975" y1="814" x2="1000" y2="814" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4,2"/>
+  <text x="1005" y="818" font-size="9" fill="#94a3b8">Async / return</text>
+  <line x1="975" y1="831" x2="1000" y2="831" stroke="#10b981" stroke-width="1.5" stroke-dasharray="4,2"/>
+  <text x="1005" y="835" font-size="9" fill="#10b981">Feedback signals</text>
+  <line x1="975" y1="848" x2="1000" y2="848" stroke="#06b6d4" stroke-width="1.5" stroke-dasharray="4,2"/>
+  <text x="1005" y="852" font-size="9" fill="#06b6d4">CDN delivery</text>
+
+</svg>
+</body>
+</html>

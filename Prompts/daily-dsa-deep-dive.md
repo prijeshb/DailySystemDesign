@@ -21,7 +21,7 @@ Search these sources for today's topic:
 
 ## Step 3 — Build the Markdown file
 
-Save to outputs folder as `dsa-<YYYY-MM-DD>-<topic-slug>.md`.
+Use filename: `dsa-<YYYY-MM-DD>-<topic-slug>.md`.
 
 Structure (keep tokens minimal, no fluff):
 
@@ -68,4 +68,4 @@ What you must say/do to get full marks:
 
 ## Output
 
-Write the file to the outputs folder. Be concise — no padding, no repeated explanations.
+Write the file. Be concise — no padding, no repeated explanations.

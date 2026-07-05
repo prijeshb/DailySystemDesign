@@ -183,7 +183,7 @@ Strong answer: blue-green migration. Embed all chunks with the new model into a 
 
 **2. "A user reports that the system confidently told them the wrong answer about the company's vacation policy. The query logs show a successful query with a 92% relevance score on the retrieved chunks. How do you investigate?"**
 
-Strong answer: the 92% relevance score tells you the system retrieved the chunks it was configured to retrieve — it doesn't tell you whether those chunks were correct. Investigation path: (1) check the retrieved chunk URLs in the query log — do those pages still exist? Are they the most recent versions? (2) check `last_indexed_at` for those chunks against `last_modified` in the source — was the document updated after it was last indexed? (3) check the Pinecone metadata for the retrieved chunks — do they match the content the user received? The most likely cause: the document was updated after the last ingestion run, and the user received an answer grounded in stale indexed content.
+Strong answer: the 92% relevance score tells you the system retrieved the chunks it was configured to retrieve — it doesn't tell you whether those chunks were correct. Investigation steps: (1) check the retrieved chunk URLs in the query log — do those pages still exist? Are they the most recent versions? (2) check `last_indexed_at` for those chunks against `last_modified` in the source — was the document updated after it was last indexed? (3) check the Pinecone metadata for the retrieved chunks — do they match the content the user received? The most likely cause: the document was updated after the last ingestion run, and the user received an answer grounded in stale indexed content.
 
 ---
 

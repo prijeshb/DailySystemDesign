@@ -2,19 +2,14 @@
 
 Daily System Design is a growing collection of system design study notes, interview Q&A, failure analysis writeups, and reusable prompts.
 
-## Repository Structure
-
-- `AISystemDesign/` - AI-focused system design notes and reference material.
-- `SoftwareSystemDesign/` - software system design case studies, interview questions, and failure analysis documents.
-- `Prompts/` - prompts used to generate or refine system design practice material.
-
 ## How to Use
 
-Browse by folder, then pick a topic-specific Markdown file. Most topics are organized as:
+Browse by topic and choose the material that matches your study goal:
 
-- `*_System_Design_*.md` for architecture and design walkthroughs.
-- `*_Interview_QA_*.md` for practice questions and answers.
-- `*_Failure_Analysis_*.md` for operational risks, incidents, and mitigation strategies.
+- Architecture and design walkthroughs.
+- Practice questions and answers.
+- Operational risks, incidents, and mitigation strategies.
+- Reusable prompts for daily practice.
 
 ## Purpose
 

@@ -19,9 +19,7 @@ Search these sources for today's topic:
 - YouTube: `neetcode <topic>` or `take u forward <topic>`
 - Any high-signal blog/editorial
 
-## Step 3 — Build the Markdown file
-
-Use filename: `dsa-<YYYY-MM-DD>-<topic-slug>.md`.
+## Step 3 — Build the Markdown
 
 Structure (keep tokens minimal, no fluff):
 
@@ -68,4 +66,4 @@ What you must say/do to get full marks:
 
 ## Output
 
-Write the file. Be concise — no padding, no repeated explanations.
+Return only the Markdown content. Be concise — no padding, no repeated explanations.

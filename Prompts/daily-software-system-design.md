@@ -4,15 +4,7 @@
 
 Create one new daily software system design deep dive. Use minimal tokens. No fluff. Check existing files before choosing today's system to avoid duplicates.
 
-## Output Location
-
-Save ALL generated output files to:
-
-`C:\Users\prije\Desktop\AI apps\DailySystemDesign\SoftwareSystemDesign`
-
-Concepts index path:
-
-`C:\Users\prije\Desktop\AI apps\DailySystemDesign\SoftwareSystemDesign\Concepts_Index.md`
+## Outputs
 
 Required files:
 
@@ -23,7 +15,7 @@ Required files:
 
 ## Pick Today's System
 
-1. Inspect `SoftwareSystemDesign` first.
+1. Inspect existing system design files first.
 2. Avoid duplicate systems already present.
 3. Pick one practical system, such as:
    - news aggregator with feed
@@ -48,7 +40,7 @@ Use web search. Prefer high-signal sources:
 - official cloud docs/pricing pages
 - academic/industry PDFs
 - real-world examples
-- existing repo files, especially `Concepts_Index.md`
+- existing notes, especially `Concepts_Index.md`
 - reference prior chat idea: Design Parking Lot System
 
 ## First Principles Thought Process
